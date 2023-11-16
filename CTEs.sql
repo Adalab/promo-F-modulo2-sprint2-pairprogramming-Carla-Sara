@@ -79,7 +79,12 @@ SELECT * FROM `precios_categoria`;
 
 
 -- La empresa nos ha pedido que busquemos el nombre de cliente, su teléfono y el número de pedidos que ha hecho cada uno de ellos.
-
+WITH `info_clientes` AS (SELECT `company_name`, `phone`, `customer_id`
+						  FROM `customers`) 
+SELECT  `info_clientes`.`company_name`, `info_clientes`.`phone`, `orders`.`customer_id`, COUNT(`orders`.`order_id`) AS `Numero de pedidos`
+FROM `orders` LEFT JOIN `info_clientes`
+ON `orders`.`customer_id` = `info_clientes`.`customer_id`
+GROUP BY `customer_id`;
 
 -- Modifica la consulta anterior para obtener los mismos resultados pero con los pedidos por año que ha hecho cada cliente.
 
