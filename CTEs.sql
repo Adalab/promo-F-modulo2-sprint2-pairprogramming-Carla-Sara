@@ -87,9 +87,32 @@ ON `orders`.`customer_id` = `info_clientes`.`customer_id`
 GROUP BY `customer_id`;
 
 -- Modifica la consulta anterior para obtener los mismos resultados pero con los pedidos por año que ha hecho cada cliente.
+WITH `info_clientes` AS (SELECT `company_name`, `phone`, `customer_id`
+						  FROM `customers`) 
+SELECT  `info_clientes`.`company_name`, `info_clientes`.`phone`, `orders`.`customer_id`, `orders`.`order_id`, YEAR(`orders`.`order_date`) AS `año`
+FROM `orders` LEFT JOIN `info_clientes`
+ON `orders`.`customer_id` = `info_clientes`.`customer_id`;
 
+WITH `info_clientes` AS (SELECT `company_name`, `phone`, `customer_id`
+						  FROM `customers`) 
+SELECT  `info_clientes`.`company_name`, `info_clientes`.`phone`, `orders`.`customer_id`, COUNT(`orders`.`order_id`) AS `Numero de pedidos`, YEAR(`orders`.`order_date`) AS `año`
+FROM `orders` RIGHT JOIN `info_clientes`
+ON `orders`.`customer_id` = `info_clientes`.`customer_id`
+GROUP BY `año`, `company_name`, `phone`, `customer_id`;
 
 -- Modifica la cte del ejercicio anterior, úsala en una subconsulta para saber el nombre del cliente y su teléfono, para aquellos clientes que hayan hecho más de 6 pedidos en el año 1998.
-
+WITH `info_clientes` AS (SELECT `company_name`, `phone`, `customer_id`
+						  FROM `customers`) 
+SELECT  `info_clientes`.`company_name`, `info_clientes`.`phone`, COUNT(`orders`.`order_id`) AS `Numero de pedidos`, YEAR(`orders`.`order_date`) AS `año`
+FROM `orders` RIGHT JOIN `info_clientes`
+ON `orders`.`customer_id` = `info_clientes`.`customer_id`
+GROUP BY `año`, `company_name`, `phone`
+HAVING `Numero de pedidos` > 6 AND `año` = 1998;
 
 -- Nos piden que obtengamos el importe total (teniendo en cuenta los descuentos) de cada pedido de la tabla orders y el customer_id asociado a cada pedido.
+WITH `pedidos` AS (SELECT `order_id`, `customer_id`
+				   FROM `orders`)
+SELECT `customer_id`, `order_details`.`order_id`, SUM((`unit_price` - (`unit_price`*`discount`))*`quantity`) AS `importe total por pedido`
+FROM `order_details` RIGHT JOIN `pedidos`
+ON `order_details`.`order_id` = `pedidos`.`order_id`
+GROUP BY `order_id`,  `customer_id`;                   
